@@ -4,8 +4,6 @@ import plotly.express as px
 import numpy as np
 import locale
 
-locale.setlocale(locale.LC_ALL, 'id_ID')
-
 bulan_translation = {
     1: 'Januari',
     2: 'Februari',
@@ -75,8 +73,7 @@ status_selection = st.multiselect('Status: ',
                                 default=status)
 
 # --- FILTER DATAFRAME BASED ON SELECTION
-mask = (df['harga'].between(*harga_selection) & 
-        df['status'].isin(status_selection) & 
+mask = (df['status'].isin(status_selection) & 
         df['bulan'].isin(bulan_selection))
 
 number_of_result = df[mask].shape[0]
