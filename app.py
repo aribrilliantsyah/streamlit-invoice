@@ -49,8 +49,6 @@ df['bulan_number'] = df['bulan']
 df['bulan'] = df['bulan'].apply(translate_bulan)
 df['tahun'] = df['tahun'].astype(str)
 
-st.dataframe(df)
-
 # ## --- STREAMLIT SELECTION
 periode = df['periode'].unique().tolist()
 bpr_name = df['bpr'].unique().tolist()
@@ -79,14 +77,20 @@ mask = (df['status'].isin(status_selection) &
 number_of_result = df[mask].shape[0]
 st.markdown(f'*Hasil yang didapatkan: {number_of_result}*')
 
-# --- GRAFIK AFTER SELECTION
+shw = df[mask].drop(columns=['bulan_number'])
+st.dataframe(shw)
+
+
+# --- GRAFIK PENDAPATAN
+st.header('_Grafik Pendapatan_')
 # multiple line by status
 df = df[mask]
 df['group_date'] = df['bulan'] + ' ' + df['tahun'].astype(str)
 df_sorted = df.sort_values(by=['bulan_number', 'tahun'], ascending=True)
 df_summary = df_sorted.groupby(['bulan_number', 'tahun', 'group_date', 'status'])['harga'].sum().reset_index()
 
-st.dataframe(df_summary)
+shw = df_summary[mask].drop(columns=['bulan_number'])
+st.dataframe(shw)
 chart = px.line(df_summary, x='group_date', y='harga', color='status', text='harga', title='Total Pendapatan dalam Bulan - Tahun',
             labels={'harga': 'Total Harga', 'group_date': 'Bulan-Tahun'},
             color_discrete_map={'PAID': 'green', 'UNPAID': 'red', 'WAITING_PAYMENT': 'blue'}
@@ -95,4 +99,25 @@ chart.update_yaxes(tickformat=",.0f", title="Total Harga")
 
 # Tampilkan grafik menggunakan Streamlit
 st.plotly_chart(chart)
+
+# --- GRAFIK JUMLAH BY STATUS
+st.header('_Grafik Jumlah BPR/S_')
+df = df[mask]
+df['group_date'] = df['bulan'] + ' ' + df['tahun'].astype(str)
+df_sorted = df.sort_values(by=['bulan_number', 'tahun'], ascending=True)
+df_summary = df_sorted.groupby(['bulan_number', 'tahun', 'group_date', 'status'])['bpr'].count().reset_index()
+
+shw = df_summary[mask].drop(columns=['bulan_number'])
+st.dataframe(shw)
+chart = px.line(df_summary, x='group_date', y='bpr', color='status', text='bpr', title='Jumlah BPR/S dalam Bulan - Tahun',
+            labels={'bpr': 'Jumlah BPR/S', 'group_date': 'Bulan-Tahun'},
+            color_discrete_map={'PAID': 'green', 'UNPAID': 'red', 'WAITING_PAYMENT': 'blue'}
+        )
+chart.update_yaxes(tickformat=",.0f", title="Jumlah BPR/S")
+
+# Tampilkan grafik menggunakan Streamlit
+st.plotly_chart(chart)
+
+
+
 
