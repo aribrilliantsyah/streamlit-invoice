@@ -102,6 +102,7 @@ st.dataframe(shw)
 
 chart = px.line(df_summary, x='group_date', y='harga', color='status', text='harga', title='Total Pendapatan dalam Bulan - Tahun',
             labels={'harga': 'Total Harga', 'group_date': 'Bulan-Tahun'},
+            line_shape="spline",
             color_discrete_map={'PAID': 'green', 'UNPAID': 'red', 'WAITING_PAYMENT': 'blue'}
         )
 chart.update_yaxes(tickformat=",.0f", title="Total Harga")
@@ -121,6 +122,7 @@ st.dataframe(shw)
 
 chart = px.line(df_summary, x='group_date', y='bpr', color='status', text='bpr', title='Jumlah BPR/S dalam Bulan - Tahun',
             labels={'bpr': 'Jumlah BPR/S', 'group_date': 'Bulan-Tahun'},
+            line_shape="spline",
             color_discrete_map={'PAID': 'green', 'UNPAID': 'red', 'WAITING_PAYMENT': 'blue'}
         )
 chart.update_yaxes(tickformat=",.0f", title="Jumlah BPR/S")
@@ -138,13 +140,13 @@ df = df[mask]
 df['group_date'] = df['bulan'] + ' ' + df['tahun'].astype(str)
 df_sorted = df.sort_values(by=['bulan_number', 'tahun'], ascending=True)
 
-df_summary = df_sorted.groupby(['bulan_number', 'tahun', 'group_date', 'metode_pembayaran'])['harga'].sum().reset_index()
+df_summary = df_sorted.groupby(['group_date', 'metode_pembayaran'])['harga'].sum().reset_index()
 
-shw = df_summary[mask].drop(columns=['bulan_number', 'tahun'])
-st.dataframe(shw)
+# shw = df_summary[mask].drop(columns=['bulan_number', 'tahun'])
+st.dataframe(df_summary)
 chart = px.line(df_summary, x='group_date', y='harga', color='metode_pembayaran', text='harga', title='Pendapatan Berdasarkan Metode Pembayaran dalam Bulan - Tahun',
             labels={'harga': 'Metode Pembayaran', 'group_date': 'Bulan-Tahun'},
-            
+            line_shape="spline",
             color_discrete_map={'MANDIRI PAYMENT': 'blue', 'FINNET/FINPAY': 'red'}
             
         )
@@ -166,23 +168,11 @@ df['jumlah_tunggakan'] = df['bulan']
 df_grouped = df.groupby(['bpr', 'status'])['jumlah_tunggakan'].count().reset_index()
 st.dataframe(df_grouped)
 
-# df_sorted = df.sort_values(by=['bulan_number', 'tahun'], ascending=True)
+# chart pie, dari jumlah tunggakan di atas di group lagi per jumlah tunggakan
+df_grouped_by_jumlah = df_grouped.groupby(['jumlah_tunggakan'])['bpr'].count().reset_index()
 
-# df_summary = df_sorted.groupby(['bulan_number', 'tahun', 'group_date', 'metode_pembayaran'])['harga'].sum().reset_index()
-
-# shw = df_summary[mask].drop(columns=['bulan_number', 'tahun'])
-# st.dataframe(shw)
-# chart = px.line(df_summary, x='group_date', y='harga', color='metode_pembayaran', text='harga', title='Pendapatan Berdasarkan Metode Pembayaran dalam Bulan - Tahun',
-#             labels={'harga': 'Metode Pembayaran', 'group_date': 'Bulan-Tahun'},
-            
-#             color_discrete_map={'MANDIRI PAYMENT': 'blue', 'FINNET/FINPAY': 'red'}
-            
-#         )
-# chart.update_yaxes(tickformat=",.0f", title="Metode Pembayaran")
-
-# # Tampilkan grafik menggunakan Streamlit
-# st.plotly_chart(chart)
-
-
-
-
+pie_chart = px.pie(df_grouped_by_jumlah,
+                title='Group By Jumlah Tunggakan',
+                values='bpr',
+                names='jumlah_tunggakan')
+st.plotly_chart(pie_chart)
