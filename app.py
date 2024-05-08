@@ -172,7 +172,7 @@ st.dataframe(df_grouped)
 df_grouped_by_jumlah = df_grouped.groupby(['jumlah_tunggakan'])['bpr'].count().reset_index()
 
 pie_chart = px.pie(df_grouped_by_jumlah,
-                title='Group By Jumlah Tunggakan',
+                title='Group Tunggakan Berdasarkan Jumlah Bulan Nunggak',
                 values='bpr',
                 names='jumlah_tunggakan')
 st.plotly_chart(pie_chart)
